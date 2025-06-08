@@ -2,40 +2,33 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const fetchRailwayUser = async (apiKey) =>
-	fetch('/api/railway', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify({
-			query: `
-				query Me {
-				    me {
-				        avatar
-				        id
-				        name
-				        workspaces {
-				            team {
-				                projects {
-				                    edges {
-				                        node {
-				                            id
-				                            name
-				                            isPublic
-				                            deletedAt
-				                            createdAt
-				                        }
-				                    }
-				                }
-				            }
-				        }
-				    }
-				}
-			`,
-		}),
-	});
+import { railwayFetch } from '~/lib/railway-fetch';
+
+const fetchRailwayUser = async () =>
+	railwayFetch(`
+		query Me {
+		    me {
+		        avatar
+		        id
+		        name
+		        workspaces {
+		            team {
+		                projects {
+		                    edges {
+		                        node {
+		                            id
+		                            name
+		                            isPublic
+		                            deletedAt
+		                            createdAt
+		                        }
+		                    }
+		                }
+		            }
+		        }
+		    }
+		}
+	`);
 
 const RailwayUserContext = createContext(null);
 
@@ -49,17 +42,24 @@ export const RailwayUserProvider = ({ children }) => {
 		setError('');
 
 		try {
-			const response = await fetchRailwayUser(apiKey);
+			localStorage.setItem('railway.apiKey', apiKey);
+
+			const response = await fetchRailwayUser();
 			const data = await response.json();
 
-			localStorage.setItem('railway.apiKey', apiKey);
 
 			setUser(data.data.me);
 		} catch (err) {
+			localStorage.removeItem('railway.apiKey', apiKey);
 			setError('Failed to fetch account information. Check if your API key is correct.');
 		} finally {
 			setLoading(false);
 		}
+	}, []);
+
+	const resetUser = useCallback(() => {
+		localStorage.removeItem('railway.apiKey');
+		setUser(null);
 	}, []);
 
 	useEffect(() => {
