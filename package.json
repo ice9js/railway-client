@@ -13,6 +13,9 @@
     "lint:fix": "next lint --fix",
     "preview": "next build && next start",
     "start": "next start",
+    "task:infinite": "node tasks/persistent-worker.js",
+    "task:long": "node tasks/long-runner.js",
+    "task:random": "node tasks/random-result.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
