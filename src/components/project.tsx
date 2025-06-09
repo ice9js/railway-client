@@ -49,7 +49,9 @@ const ProjectView = () => {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent>
 						{getUserProjects(user).map((project) => (
-							<DropdownMenuItem key={project.id}>{project.name}</DropdownMenuItem>
+							<DropdownMenuItem key={project.id} onClick={() => setCurrentProjectId(project.id)}>
+								{project.name}
+							</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
