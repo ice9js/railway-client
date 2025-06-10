@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { Copy, FileClock, History, Pause, Play } from 'lucide-react';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { railwayFetch } from '~/lib/railway-fetch';
 
 const fetchProject = async (projectId) =>
@@ -98,8 +99,18 @@ const runningDeploymentInstances = (deployment) =>
 const isDeploymentRunning = (deployment) =>
 	runningDeploymentInstances(deployment).length > 0;
 
-const Service = ({environmentId, service, deployments}) => {
+const Service = ({environmentId, service, deployments, refreshProject}) => {
 	const lastDeployment = deployments[0];
+
+	const handleStart = useCallback(async () => {
+		startService(service.id, environmentId)
+			.finally(() => refreshProject());
+	}, [service, environmentId, refreshProject]);
+
+	const handleStop = useCallback(async () => {
+		pauseService(lastDeployment)
+			.finally(() => refreshProject());
+	}, [lastDeployment, refreshProject]);
 
 	const statusClasses = clsx('text-xs font-semibold rounded-sm text-white py-1 px-2 ', {
 		'bg-orange-500': ['BUILDING', 'DEPLOYING', 'INITIALIZING', 'NEEDS_APPROVAL', 'WAITING'].includes(lastDeployment.status),
@@ -127,8 +138,8 @@ const Service = ({environmentId, service, deployments}) => {
 				</div>
 				<Button variant="outline"><History className="w-4 h-4" /></Button>
 				<Button variant="outline"><FileClock className="w-4 h-4" /></Button>
-				{!isRunning && (<Button className="bg-green-500" onClick={() => startService(service.id, environmentId)}><Play className="w-4 h-4" /></Button>)}
-				{isRunning && (<Button className="bg-red-500" onClick={() => pauseService(lastDeployment)}><Pause className="w-4 h-4" /></Button>)}
+				{!isRunning && (<Button className="bg-green-500" onClick={handleStart}><Play className="w-4 h-4" /></Button>)}
+				{isRunning && (<Button className="bg-red-500" onClick={handleStop}><Pause className="w-4 h-4" /></Button>)}
 			</CardContent>
 		</Card>
 	);
@@ -139,12 +150,10 @@ const EnvironmentView = ({ projectId }) => {
 	const [currentEnvironmentId, setCurrentEnvironmentId] = useState('');
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		// some race conditions here!
-		// this runs multiple times
+	const updateProject = useCallback(() => {
+		console.log('Fetching project');
 		setLoading(true);
-
-		fetchProject(projectId)			
+		fetchProject(projectId)
 			.then((response) => response.json())
 			.then((data) => {
 				setProject(data.data.project);
@@ -155,15 +164,35 @@ const EnvironmentView = ({ projectId }) => {
 				console.error('Failed to fetch project:', error);
 				setLoading(false);
 			});
+
+	}, []);
+
+	useEffect(() => {
+		updateProject();
 	}, [projectId]);
 
-	if (!project || loading) {
+	if (!project) {
 		return null;
 	}
 
 	return (
 		<Card className="w-full max-w-4xl px-8">
-			<div></div> {/*toggle*/}
+			<Tabs
+				defaultValue={currentEnvironmentId}
+				className="flex flex-row justify-end w-full"
+			>
+				<TabsList>
+					{getEnvironments(project).map((environment) => (
+						<TabsTrigger
+							key={environment.id}
+							value={environment.id}
+							onClick={() => setCurrentEnvironmentId(environment.id)}
+						>
+							{environment.name}
+						</TabsTrigger>
+					))}
+				</TabsList>
+			</Tabs>
 
 			<div>
 				{ getServices(project, currentEnvironmentId).map((service) => (
@@ -172,6 +201,7 @@ const EnvironmentView = ({ projectId }) => {
 						environmentId={currentEnvironmentId}
 						service={service}
 						deployments={getServiceDeployments(project, service.id)}
+						refreshProject={updateProject}
 					/>
 				))}
 			</div>
