@@ -23,7 +23,7 @@ export const getProjectEnvironments = (project: Project): Environment[] =>
 /**
  * Returns the project services.
  */
-export const getProjectServices = (project: Project, environmentId: string): Service[] =>
+export const getProjectServices = (project: Project): Service[] =>
 	project.services.edges
 		.map(({ node }) => node);
 

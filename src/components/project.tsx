@@ -17,7 +17,7 @@ const ProjectView = () => {
 	const { resetUser, user } = useRailwayUserContext();
 
 	useEffect(() => {
-		setCurrentProjectId(user && getUserProjects(user)[0]?.id || '');
+		setCurrentProjectId((user && getUserProjects(user)[0]?.id) ?? '');
 	}, [user]);
 
 	if (!user) {

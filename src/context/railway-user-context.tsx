@@ -51,9 +51,9 @@ export const RailwayUserProvider = ({ children }: RailwayUserProviderProps) => {
 		const storedApiKey = localStorage.getItem('railway.apiKey');
 
 		if (storedApiKey) {
-			setApiKey(storedApiKey);
+			void setApiKey(storedApiKey);
 		}
-	}, []);
+	}, [setApiKey]);
 
 	const context = useMemo(() => ({
 		error,

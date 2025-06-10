@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { clsx } from 'clsx';
-import { Copy, FileClock, History, Pause, Play } from 'lucide-react';
 
 import type { Project } from '~/lib/railway-types';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
+import { Card } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Ruler } from '~/components/ruler';
 import { Service } from '~/components/service';
-import { Timeline } from '~/components/timeline';
 import { fetchProject } from '~/lib/railway-fetch';
 import { getProjectEnvironments, getProjectServices, getProjectServiceDeployments } from '~/lib/railway-utils';
 
@@ -20,19 +16,15 @@ interface EnvironmentViewProps {
 const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
 	const [project, setProject] = useState<Project|null>(null);
 	const [currentEnvironmentId, setCurrentEnvironmentId] = useState('');
-	const [loading, setLoading] = useState(true);
 
 	const updateProject = useCallback(() => {
-		setLoading(true);
 		fetchProject(projectId)
 			.then((projectData) => {
 				setProject(projectData);
-				setCurrentEnvironmentId(projectData.environments.edges[0]?.node.id || '');
-				setLoading(false);
+				setCurrentEnvironmentId(projectData.environments.edges[0]?.node.id ?? '');
 			})
 			.catch((error) => {
 				console.error('Failed to fetch project:', error);
-				setLoading(false);
 			});
 
 	}, [projectId]);
@@ -82,7 +74,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
 
 
 			<div className="grid gap-4">
-				{ getProjectServices(project, currentEnvironmentId).map((service) => (
+				{ getProjectServices(project).map((service) => (
 					<Service
 						key={service.id}
 						environmentId={currentEnvironmentId}

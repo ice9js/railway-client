@@ -14,7 +14,7 @@ const Welcome = () => {
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setApiKey(key);
+		void setApiKey(key);
 	};
 
 	if (user) {
@@ -26,7 +26,7 @@ const Welcome = () => {
 			<h2 className="text-2xl font-bold">Welcome</h2>
 			<p className="text-sm text-gray-500 mb-4">
 				A Railway.app account key is required to proceed.<br />
-				Don't worry, it'll only be stored in your browser.
+				{`Don't worry, it'll only be stored in your browser.`}
 			</p>
 			<Input
 				placeholder="Enter your API key"
