@@ -10,14 +10,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { useRailwayUserContext } from '~/context/railway-user-context';
 import Environment from '~/components/environment';
-
-const getUserProjects = (user) =>
-	user.workspaces
-		.flatMap(({ team }) => team.projects.edges)
-		.map(({ node }) => ({ id: node.id, name: node.name }));
-
-const getUserProject = (user, projectId) =>
-	getUserProjects(user).find((project) => project.id === projectId) || null;
+import { getUserProjects, getUserProject } from '~/lib/railway-utils';
 
 const ProjectView = () => {
 	const [ currentProjectId, setCurrentProjectId ] = useState('');

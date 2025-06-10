@@ -2,33 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { railwayFetch } from '~/lib/railway-fetch';
-
-const fetchRailwayUser = async () =>
-	railwayFetch(`
-		query Me {
-		    me {
-		        avatar
-		        id
-		        name
-		        workspaces {
-		            team {
-		                projects {
-		                    edges {
-		                        node {
-		                            id
-		                            name
-		                            isPublic
-		                            deletedAt
-		                            createdAt
-		                        }
-		                    }
-		                }
-		            }
-		        }
-		    }
-		}
-	`);
+import { fetchUser } from '~/lib/railway-fetch';
 
 const RailwayUserContext = createContext(null);
 
@@ -44,12 +18,12 @@ export const RailwayUserProvider = ({ children }) => {
 		try {
 			localStorage.setItem('railway.apiKey', apiKey);
 
-			const response = await fetchRailwayUser();
+			const response = await fetchUser();
 			const data = await response.json();
-
 
 			setUser(data.data.me);
 		} catch (err) {
+			console.error(err);
 			localStorage.removeItem('railway.apiKey', apiKey);
 			setError('Failed to fetch account information. Check if your API key is correct.');
 		} finally {
