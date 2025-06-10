@@ -4,7 +4,10 @@ import { Copy, FileClock, History, Pause, Play } from 'lucide-react';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
+import { Separator } from '~/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { Ruler } from '~/components/ruler';
+import { Timeline } from '~/components/timeline';
 import { railwayFetch } from '~/lib/railway-fetch';
 
 const fetchProject = async (projectId) =>
@@ -30,6 +33,8 @@ const fetchProject = async (projectId) =>
 		                    }
 		                    canRedeploy
 							createdAt
+							deploymentStopped
+							updatedAt
 		                    status
 		                    serviceId
 		                    url
@@ -125,9 +130,13 @@ const Service = ({environmentId, service, deployments, refreshProject}) => {
 	const instances = lastDeployment ? runningDeploymentInstances(lastDeployment).length : 0;
 
 	return (
-		<Card className="w-full mb-4">
-			<CardContent className="flex flex-row items-start gap-4">
-				<div className="flex flex-col flex-1">
+
+		<div className="grid grid-cols-3 gap-4 px-4">
+			<div className="flex flex-row">
+				{!isRunning && (<Button className="bg-green-500" onClick={handleStart}><Play className="w-4 h-4" /></Button>)}
+				{isRunning && (<Button className="bg-red-500" onClick={handleStop}><Pause className="w-4 h-4" /></Button>)}
+
+				<div className="flex flex-col flex-1 ml-2">
 					<p className="font-bold text-xl mb-2">
 						{service.name}
 					</p>
@@ -136,12 +145,11 @@ const Service = ({environmentId, service, deployments, refreshProject}) => {
 						<span className="text-xs rounded-sm py-1 px-2 ml-2 border-1 inline-flex"><Copy className="w-3 h-3 mr-2" />{instances}</span>
 					</div>
 				</div>
-				<Button variant="outline"><History className="w-4 h-4" /></Button>
-				<Button variant="outline"><FileClock className="w-4 h-4" /></Button>
-				{!isRunning && (<Button className="bg-green-500" onClick={handleStart}><Play className="w-4 h-4" /></Button>)}
-				{isRunning && (<Button className="bg-red-500" onClick={handleStop}><Pause className="w-4 h-4" /></Button>)}
-			</CardContent>
-		</Card>
+			</div>
+			<div className="col-span-2 flex flex-row">
+				<Timeline deployments={deployments} />
+			</div>
+		</div>
 	);
 };
 
@@ -151,7 +159,6 @@ const EnvironmentView = ({ projectId }) => {
 	const [loading, setLoading] = useState(true);
 
 	const updateProject = useCallback(() => {
-		console.log('Fetching project');
 		setLoading(true);
 		fetchProject(projectId)
 			.then((response) => response.json())
@@ -165,21 +172,28 @@ const EnvironmentView = ({ projectId }) => {
 				setLoading(false);
 			});
 
-	}, []);
+	}, [projectId]);
 
 	useEffect(() => {
 		updateProject();
-	}, [projectId]);
+
+		// Poll for updates every 10s
+		// const updateInterval = setInterval(() => {
+		// 	updateProject();
+		// }, 10000);
+
+		// return () => clearInterval(updateInterval);
+	}, [projectId, updateProject]);
 
 	if (!project) {
 		return null;
 	}
 
 	return (
-		<Card className="w-full max-w-4xl px-8">
+		<Card className="w-full max-w-4xl">
 			<Tabs
 				defaultValue={currentEnvironmentId}
-				className="flex flex-row justify-end w-full"
+				className="flex flex-row justify-end w-full px-4"
 			>
 				<TabsList>
 					{getEnvironments(project).map((environment) => (
@@ -194,7 +208,17 @@ const EnvironmentView = ({ projectId }) => {
 				</TabsList>
 			</Tabs>
 
-			<div>
+			<Separator />
+
+			<div className="grid grid-cols-3 gap-4 px-4">
+				<div></div>
+				<div className="col-span-2">
+					<Ruler />
+				</div>
+			</div>
+
+
+			<div className="grid gap-4">
 				{ getServices(project, currentEnvironmentId).map((service) => (
 					<Service
 						key={service.id}
