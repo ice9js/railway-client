@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 
 const API_HOST = 'https://backboard.railway.app/graphql/v2';
 
@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		return res.status(405).json({ error: 'Method not allowed' });
 	}
 
-	if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+	if (!req.headers.authorization?.startsWith('Bearer ')) {
 		return res.status(401).json({ error: 'Unauthorized' });
 	}
 

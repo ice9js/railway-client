@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { clsx } from 'clsx';
 import { Copy, FileClock, History, Pause, Play } from 'lucide-react';
 
+import type { Project } from '~/lib/railway-types';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
@@ -12,18 +13,21 @@ import { Timeline } from '~/components/timeline';
 import { fetchProject } from '~/lib/railway-fetch';
 import { getProjectEnvironments, getProjectServices, getProjectServiceDeployments } from '~/lib/railway-utils';
 
-const EnvironmentView = ({ projectId }) => {
-	const [project, setProject] = useState(null);
+interface EnvironmentViewProps {
+	projectId: string;
+}
+
+const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
+	const [project, setProject] = useState<Project|null>(null);
 	const [currentEnvironmentId, setCurrentEnvironmentId] = useState('');
 	const [loading, setLoading] = useState(true);
 
 	const updateProject = useCallback(() => {
 		setLoading(true);
 		fetchProject(projectId)
-			.then((response) => response.json())
-			.then((data) => {
-				setProject(data.data.project);
-				setCurrentEnvironmentId(data.data.project.environments.edges[0]?.node.id || '');
+			.then((projectData) => {
+				setProject(projectData);
+				setCurrentEnvironmentId(projectData.environments.edges[0]?.node.id || '');
 				setLoading(false);
 			})
 			.catch((error) => {

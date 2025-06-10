@@ -1,6 +1,8 @@
 "use client"
 
-export const railwayFetch = async (query) =>
+import type { User, Project } from '~/lib/railway-types';
+
+export const railwayFetch = async (query: string): Promise<any> =>
 	fetch('/api/railway', {
 		method: 'POST',
 		headers: {
@@ -8,9 +10,10 @@ export const railwayFetch = async (query) =>
 			'Authorization': `Bearer ${localStorage.getItem('railway.apiKey')}`
 		},
 		body: JSON.stringify({ query })
-	});
+	})
+	.then(( response ) => response.json());
 
-export const fetchUser = async () =>
+export const fetchUser = async (): Promise<User> =>
 	railwayFetch(`
 		query Me {
 		    me {
@@ -34,9 +37,10 @@ export const fetchUser = async () =>
 		        }
 		    }
 		}
-	`);
+	`)
+	.then(({ data }) => data.me);
 
-export const fetchProject = async (projectId) =>
+export const fetchProject = async (projectId: string): Promise<Project> =>
 	railwayFetch(`
 		query Project {
 			project(id: "${projectId}") {
@@ -78,16 +82,17 @@ export const fetchProject = async (projectId) =>
 		        }
 		    }
 		}
-	`);
+	`)
+	.then(({ data }) => data.project);
 
-export const removeDeployment = async (deploymentId) =>
+export const removeDeployment = async (deploymentId: string) =>
 	railwayFetch(`
 		mutation DeploymentRemove {
 		    deploymentRemove(id: "${deploymentId}")
 		}
 	`);
 
-export const deployServiceInstance = async(serviceId, environmentId) =>
+export const deployServiceInstance = async(serviceId: string, environmentId: string) =>
 	railwayFetch(`
 		mutation ServiceInstanceDeploy {
 		    serviceInstanceDeploy(environmentId: "${environmentId}", serviceId: "${serviceId}")

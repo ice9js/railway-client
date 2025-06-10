@@ -2,29 +2,40 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import type { User } from '~/lib/railway-types';
 import { fetchUser } from '~/lib/railway-fetch';
 
-const RailwayUserContext = createContext(null);
+type RailwayUserContextType = {
+  error: string;
+  loading: boolean;
+  user: User | null;
+  setApiKey: (apiKey: string) => Promise<void>;
+  resetUser: () => void;
+};
 
-export const RailwayUserProvider = ({ children }) => {
+const RailwayUserContext = createContext<RailwayUserContextType|null>(null);
+
+interface RailwayUserProviderProps {
+	children: React.ReactNode;
+};
+
+export const RailwayUserProvider = ({ children }: RailwayUserProviderProps) => {
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [user, setUser] = useState(null);
+	const [user, setUser] = useState<User|null>(null);
 
-	const setApiKey = useCallback(async (apiKey) => {
+	const setApiKey = useCallback(async (apiKey: string) => {
 		setLoading(true);
 		setError('');
 
 		try {
 			localStorage.setItem('railway.apiKey', apiKey);
 
-			const response = await fetchUser();
-			const data = await response.json();
-
-			setUser(data.data.me);
+			const data = await fetchUser();
+			setUser(data);
 		} catch (err) {
 			console.error(err);
-			localStorage.removeItem('railway.apiKey', apiKey);
+			localStorage.removeItem('railway.apiKey');
 			setError('Failed to fetch account information. Check if your API key is correct.');
 		} finally {
 			setLoading(false);
@@ -49,7 +60,8 @@ export const RailwayUserProvider = ({ children }) => {
 		loading,
 		user,
 		setApiKey,
-	}), [error, loading, user, setApiKey]);
+		resetUser,
+	}), [error, loading, user, setApiKey, resetUser]);
 
 	return (
 		<RailwayUserContext.Provider value={context}>
@@ -58,4 +70,12 @@ export const RailwayUserProvider = ({ children }) => {
 	);
 };
 
-export const useRailwayUserContext = () => useContext(RailwayUserContext);
+export const useRailwayUserContext = () => {
+	const context =	useContext(RailwayUserContext);
+
+	if (!context) {
+		throw new Error('useRailwayUserContext must be used within a RailwayUserProvider');
+  }
+
+  return context;
+}

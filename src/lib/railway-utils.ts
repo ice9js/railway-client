@@ -1,27 +1,29 @@
+import type { User, UserProject, Project, Service, Deployment, Environment } from '~/lib/railway-types';
+
 /**
  * Returns all user's projects.
  */
-export const getUserProjects = (user) =>
+export const getUserProjects = (user: User): UserProject[] =>
 	user.workspaces
 		.flatMap(({ team }) => team.projects.edges)
-		.map(({ node }) => ({ id: node.id, name: node.name }));
+		.map(({ node }) => node);
 
 /**
  * Returns the specific project for the user.
  */
-export const getUserProject = (user, projectId) =>
-	getUserProjects(user).find((project) => project.id === projectId) || null;
+export const getUserProject = (user: User, projectId: string): UserProject|undefined =>
+	getUserProjects(user).find((project) => project.id === projectId);
 
 /**
  * Returns the project environments.
  */
-export const getProjectEnvironments = (project) =>
+export const getProjectEnvironments = (project: Project): Environment[] =>
 	project.environments.edges.map(({ node }) => node);
 
 /**
  * Returns the project services.
  */
-export const getProjectServices = (project, environmentId) =>
+export const getProjectServices = (project: Project, environmentId: string): Service[] =>
 	project.services.edges
 		.map(({ node }) => node);
 
@@ -29,16 +31,16 @@ export const getProjectServices = (project, environmentId) =>
  * Returns the project deployments for the given serviceId.
  * Sorted by deployment date, descending.
  */
-export const getProjectServiceDeployments = (project, serviceId) =>
+export const getProjectServiceDeployments = (project: Project, serviceId: string): Deployment[] =>
 	project.deployments.edges
 		.map(({ node }) => node)
 		.filter(({ serviceId: deploymentServiceId }) => deploymentServiceId === serviceId)
-		.sort((a , b) => new Date(b.createdAt) - new Date(a.createdAt));
+		.sort((a , b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
 /**
  * Returns the count of running deployment instances.
  */
-export const getDeploymentRunningInstanceCount = (deployment) =>
+export const getDeploymentRunningInstanceCount = (deployment: Deployment): number =>
 	deployment.instances.filter(({status}) => {
 		return ['INITIALIZING', 'RUNNING', 'RESTARTING'].includes(status);
 	}).length;

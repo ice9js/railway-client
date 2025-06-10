@@ -17,7 +17,7 @@ const ProjectView = () => {
 	const { resetUser, user } = useRailwayUserContext();
 
 	useEffect(() => {
-		setCurrentProjectId(user ? getUserProjects(user)[0].id : '');
+		setCurrentProjectId(user && getUserProjects(user)[0]?.id || '');
 	}, [user]);
 
 	if (!user) {
@@ -36,7 +36,7 @@ const ProjectView = () => {
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline">
-							{currentProject.name}
+							{currentProject?.name}
 							<ChevronDown className="w-4 h-4" />
 						</Button>
 					</DropdownMenuTrigger>

@@ -12,7 +12,7 @@ const Welcome = () => {
 
 	const { error, loading, setApiKey, user } = useRailwayUserContext();
 
-	const handleSubmit = async (event) => {
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setApiKey(key);
 	};
