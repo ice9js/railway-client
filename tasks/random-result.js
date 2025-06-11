@@ -1,4 +1,4 @@
-if (Math.random() > 0.5) { 
+if (Math.random() > 0.5) {
   console.error("Failure occurred!");
 
   throw new Error();

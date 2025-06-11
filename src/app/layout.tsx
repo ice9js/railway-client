@@ -3,7 +3,7 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
-import { RailwayUserProvider } from '~/context/railway-user-context';
+import { RailwayUserProvider } from "~/context/railway-user-context";
 
 export const metadata: Metadata = {
   title: "Railway Client",
@@ -22,9 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <RailwayUserProvider>
-          {children}
-        </RailwayUserProvider>
+        <RailwayUserProvider>{children}</RailwayUserProvider>
       </body>
     </html>
   );

@@ -1,20 +1,19 @@
-"use client"
+"use client";
 
-import type { User, Project } from '~/lib/railway-types';
+import type { User, Project } from "~/lib/railway-types";
 
 export const railwayFetch = async (query: string): Promise<any> =>
-	fetch('/api/railway', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${localStorage.getItem('railway.apiKey')}`
-		},
-		body: JSON.stringify({ query })
-	})
-	.then(( response ) => response.json());
+  fetch("/api/railway", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("railway.apiKey")}`,
+    },
+    body: JSON.stringify({ query }),
+  }).then((response) => response.json());
 
 export const fetchUser = async (): Promise<User> =>
-	railwayFetch(`
+  railwayFetch(`
 		query Me {
 		    me {
 		        avatar
@@ -37,11 +36,10 @@ export const fetchUser = async (): Promise<User> =>
 		        }
 		    }
 		}
-	`)
-	.then(({ data }) => data.me);
+	`).then(({ data }) => data.me);
 
 export const fetchProject = async (projectId: string): Promise<Project> =>
-	railwayFetch(`
+  railwayFetch(`
 		query Project {
 			project(id: "${projectId}") {
 		        id
@@ -82,18 +80,20 @@ export const fetchProject = async (projectId: string): Promise<Project> =>
 		        }
 		    }
 		}
-	`)
-	.then(({ data }) => data.project);
+	`).then(({ data }) => data.project);
 
 export const removeDeployment = async (deploymentId: string) =>
-	railwayFetch(`
+  railwayFetch(`
 		mutation DeploymentRemove {
 		    deploymentRemove(id: "${deploymentId}")
 		}
 	`);
 
-export const deployServiceInstance = async(serviceId: string, environmentId: string) =>
-	railwayFetch(`
+export const deployServiceInstance = async (
+  serviceId: string,
+  environmentId: string,
+) =>
+  railwayFetch(`
 		mutation ServiceInstanceDeploy {
 		    serviceInstanceDeploy(environmentId: "${environmentId}", serviceId: "${serviceId}")
 		}

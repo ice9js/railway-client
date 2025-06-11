@@ -6,13 +6,13 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-	// Temporarily disable checks
-	eslint: {
-		ignoreDuringBuilds: true,
-	},
-	typescript: {
-		ignoreBuildErrors: true,
-	},
+  // Temporarily disable checks
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default config;

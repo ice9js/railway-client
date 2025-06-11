@@ -1,54 +1,59 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
 
 interface RulerProps {
-  height?: number
-  className?: string
-  segments?: number
-  maxValue?: number
+  height?: number;
+  className?: string;
+  segments?: number;
+  maxValue?: number;
 }
 
-export function Ruler({ height = 40, className = "", segments = 60, maxValue = 60 }: RulerProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(600) // Default fallback width
+export function Ruler({
+  height = 40,
+  className = "",
+  segments = 60,
+  maxValue = 60,
+}: RulerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(600); // Default fallback width
 
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth
-        setWidth(containerWidth)
+        const containerWidth = containerRef.current.offsetWidth;
+        setWidth(containerWidth);
       }
-    }
+    };
 
     // Initial measurement
-    updateWidth()
+    updateWidth();
 
     // Set up ResizeObserver to watch for container size changes
-    const resizeObserver = new ResizeObserver(updateWidth)
+    const resizeObserver = new ResizeObserver(updateWidth);
     if (containerRef.current) {
-      resizeObserver.observe(containerRef.current)
+      resizeObserver.observe(containerRef.current);
     }
 
     // Fallback for older browsers - window resize
-    window.addEventListener("resize", updateWidth)
+    window.addEventListener("resize", updateWidth);
 
     return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener("resize", updateWidth)
-    }
-  }, [])
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
 
-  const segmentWidth = width / segments
+  const segmentWidth = width / segments;
 
   // Generate tick marks and labels
-  const ticks = []
-  const labels = []
+  const ticks = [];
+  const labels = [];
 
   for (let i = 0; i <= segments; i++) {
-    const x = i * segmentWidth
-    const value = maxValue - (i * maxValue) / segments // Dynamic value calculation
-    const isMajorTick = i % 10 === 0
+    const x = i * segmentWidth;
+    const value = maxValue - (i * maxValue) / segments; // Dynamic value calculation
+    const isMajorTick = i % 10 === 0;
 
     // Add tick mark
     ticks.push(
@@ -62,7 +67,7 @@ export function Ruler({ height = 40, className = "", segments = 60, maxValue = 6
         strokeWidth={isMajorTick ? 1.5 : 0.5}
         className="text-gray-600"
       />,
-    )
+    );
 
     // Add label for major ticks
     if (isMajorTick) {
@@ -72,11 +77,11 @@ export function Ruler({ height = 40, className = "", segments = 60, maxValue = 6
           x={x}
           y={height - 16}
           textAnchor="middle"
-          className="text-xs font-medium fill-gray-700"
+          className="fill-gray-700 text-xs font-medium"
         >
           {value === 0 ? 0 : -Math.round(value)}
         </text>,
-      )
+      );
     }
   }
 
@@ -106,5 +111,5 @@ export function Ruler({ height = 40, className = "", segments = 60, maxValue = 6
         {labels}
       </svg>
     </div>
-  )
+  );
 }

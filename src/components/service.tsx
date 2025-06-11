@@ -1,78 +1,120 @@
-import { useCallback, useState } from 'react';
-import { clsx } from 'clsx';
-import { Copy, Pause, Play } from 'lucide-react';
+import { useCallback, useState } from "react";
+import { clsx } from "clsx";
+import { Copy, Pause, Play } from "lucide-react";
 
-import type { Deployment, Service as ServiceType } from '~/lib/railway-types';
-import { Button } from '~/components/ui/button';
-import { Timeline } from '~/components/timeline';
-import { removeDeployment, deployServiceInstance } from '~/lib/railway-fetch';
-import { getDeploymentRunningInstanceCount } from '~/lib/railway-utils';
+import type { Deployment, Service as ServiceType } from "~/lib/railway-types";
+import { Button } from "~/components/ui/button";
+import { Timeline } from "~/components/timeline";
+import { removeDeployment, deployServiceInstance } from "~/lib/railway-fetch";
+import { getDeploymentRunningInstanceCount } from "~/lib/railway-utils";
 
 interface ServiceProps {
-	environmentId: string;
-	service: ServiceType;
-	deployments: Deployment[];
-	refreshProject: () => void;
+  environmentId: string;
+  service: ServiceType;
+  deployments: Deployment[];
+  refreshProject: () => void;
 }
 
-export const Service = ({environmentId, service, deployments, refreshProject}: ServiceProps) => {
-	const [loading, setLoading] = useState(false);
+export const Service = ({
+  environmentId,
+  service,
+  deployments,
+  refreshProject,
+}: ServiceProps) => {
+  const [loading, setLoading] = useState(false);
 
-	const lastDeployment = deployments[0];
+  const lastDeployment = deployments[0];
 
-	const handleStart = useCallback(() => {
-		setLoading(true);
-		void deployServiceInstance(service.id, environmentId)
-			.finally(() => {
-				setLoading(false);
-				refreshProject();
-			});
-	}, [service, environmentId, refreshProject]);
+  const handleStart = useCallback(() => {
+    setLoading(true);
+    void deployServiceInstance(service.id, environmentId).finally(() => {
+      setLoading(false);
+      refreshProject();
+    });
+  }, [service, environmentId, refreshProject]);
 
-	const handleStop = useCallback(async () => {
-		if (!lastDeployment) {
-			return;
-		}
+  const handleStop = useCallback(async () => {
+    if (!lastDeployment) {
+      return;
+    }
 
-		setLoading(true);
-		void removeDeployment(lastDeployment.id)
-			.finally(() => {
-				setLoading(false);
-				refreshProject();
-			});
-	}, [lastDeployment, refreshProject]);
+    setLoading(true);
+    void removeDeployment(lastDeployment.id).finally(() => {
+      setLoading(false);
+      refreshProject();
+    });
+  }, [lastDeployment, refreshProject]);
 
-	const statusClasses = clsx('text-xs font-semibold rounded-sm text-white py-1 px-2 ', {
-		'bg-orange-500': ['BUILDING', 'DEPLOYING', 'INITIALIZING', 'NEEDS_APPROVAL', 'WAITING'].includes(lastDeployment?.status ?? ''),
-		'bg-green-500': ['SUCCESS'].includes(lastDeployment?.status ?? ''),
-		'bg-blue-500': ['SLEEPING'].includes(lastDeployment?.status ?? ''),
-		'bg-red-500': ['CRASHED', 'FAILED'].includes(lastDeployment?.status ?? ''),
-		'bg-gray-500': ['QUEUED', 'REMOVED', 'REMOVING', 'SKIPPED'].includes(lastDeployment?.status ?? ''),
-		'animate-pulse': ['BUILDING', 'DEPLOYING', 'INITIALIZING', 'REMOVING'].includes(lastDeployment?.status ?? '')
-	});
+  const statusClasses = clsx(
+    "text-xs font-semibold rounded-sm text-white py-1 px-2 ",
+    {
+      "bg-orange-500": [
+        "BUILDING",
+        "DEPLOYING",
+        "INITIALIZING",
+        "NEEDS_APPROVAL",
+        "WAITING",
+      ].includes(lastDeployment?.status ?? ""),
+      "bg-green-500": ["SUCCESS"].includes(lastDeployment?.status ?? ""),
+      "bg-blue-500": ["SLEEPING"].includes(lastDeployment?.status ?? ""),
+      "bg-red-500": ["CRASHED", "FAILED"].includes(
+        lastDeployment?.status ?? "",
+      ),
+      "bg-gray-500": ["QUEUED", "REMOVED", "REMOVING", "SKIPPED"].includes(
+        lastDeployment?.status ?? "",
+      ),
+      "animate-pulse": [
+        "BUILDING",
+        "DEPLOYING",
+        "INITIALIZING",
+        "REMOVING",
+      ].includes(lastDeployment?.status ?? ""),
+    },
+  );
 
-	const instances = lastDeployment ? getDeploymentRunningInstanceCount(lastDeployment) : 0;
-	const isRunning = instances > 0;
+  const instances = lastDeployment
+    ? getDeploymentRunningInstanceCount(lastDeployment)
+    : 0;
+  const isRunning = instances > 0;
 
-	return (
-		<div className="grid grid-cols-3 gap-4 px-4">
-			<div className="flex flex-row">
-				{!isRunning && (<Button className="bg-green-500" disabled={loading} onClick={handleStart}><Play className="w-4 h-4" /></Button>)}
-				{isRunning && (<Button className="bg-red-500" disabled={loading} onClick={handleStop}><Pause className="w-4 h-4" /></Button>)}
+  return (
+    <div className="grid grid-cols-3 gap-4 px-4">
+      <div className="flex flex-row">
+        {!isRunning && (
+          <Button
+            className="bg-green-500"
+            disabled={loading}
+            onClick={handleStart}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+        )}
+        {isRunning && (
+          <Button
+            className="bg-red-500"
+            disabled={loading}
+            onClick={handleStop}
+          >
+            <Pause className="h-4 w-4" />
+          </Button>
+        )}
 
-				<div className="flex flex-col flex-1 ml-2">
-					<p className="font-bold text-xl mb-2">
-						{service.name}
-					</p>
-					<div className="flex flex-row">
-						<span className={statusClasses}>{lastDeployment?.status ?? 'unknown'}</span>
-						<span className="text-xs rounded-sm py-1 px-2 ml-2 border-1 inline-flex"><Copy className="w-3 h-3 mr-2" />{instances}</span>
-					</div>
-				</div>
-			</div>
-			<div className="col-span-2 flex flex-row">
-				<Timeline deployments={deployments} />
-			</div>
-		</div>
-	);
+        <div className="ml-2 flex flex-1 flex-col">
+          <p className="mb-2 text-xl font-bold">{service.name}</p>
+          <div className="flex flex-row">
+            <span className={statusClasses}>
+              {lastDeployment?.status ?? "unknown"}
+            </span>
+            <span className="ml-2 inline-flex rounded-sm border-1 px-2 py-1 text-xs">
+              <Copy className="mr-2 h-3 w-3" />
+              {instances}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="col-span-2 flex flex-row">
+        <Timeline deployments={deployments} />
+      </div>
+    </div>
+  );
 };
