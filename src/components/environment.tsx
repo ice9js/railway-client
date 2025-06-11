@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Project } from "~/lib/railway-types";
 import { Card } from "~/components/ui/card";
@@ -21,10 +21,21 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
   const [project, setProject] = useState<Project | null>(null);
   const [currentEnvironmentId, setCurrentEnvironmentId] = useState("");
 
+  const lastProjectId = useRef(projectId);
+
   const updateProject = useCallback(() => {
     fetchProject(projectId)
       .then((projectData) => {
+        if (lastProjectId.current !== projectId) {
+          return;
+        }
+
         setProject(projectData);
+
+        if (projectData.environments.edges.map(({ node }) => node.id ).includes(currentEnvironmentId)) {
+            return;
+        }
+
         setCurrentEnvironmentId(
           projectData.environments.edges[0]?.node.id ?? "",
         );
@@ -32,9 +43,10 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
       .catch((error) => {
         console.error("Failed to fetch project:", error);
       });
-  }, [projectId]);
+  }, [currentEnvironmentId, projectId]);
 
   useEffect(() => {
+    lastProjectId.current = projectId;
     updateProject();
 
     // Poll for updates every 10s
@@ -42,7 +54,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
     	updateProject();
     }, 15000);
 
-    // return () => clearInterval(updateInterval);
+    return () => clearInterval(updateInterval);
   }, [projectId, updateProject]);
 
   if (!project) {
