@@ -37,17 +37,18 @@ export const getProjectServices = (project: Project): Service[] =>
   project.services.edges.map(({ node }) => node);
 
 /**
- * Returns the project deployments for the given serviceId.
+ * Returns the project deployments for the given serviceId and environmentId.
  * Sorted by deployment date, descending.
  */
 export const getProjectServiceDeployments = (
   project: Project,
   serviceId: string,
+  environmentId: string,
 ): Deployment[] =>
   project.deployments.edges
     .map(({ node }) => node)
     .filter(
-      ({ serviceId: deploymentServiceId }) => deploymentServiceId === serviceId,
+      (deployment) => deployment.serviceId === serviceId && deployment.environmentId === environmentId,
     )
     .sort(
       (a, b) =>

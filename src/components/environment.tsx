@@ -54,13 +54,13 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
       <Tabs
         defaultValue={currentEnvironmentId}
         className="flex w-full flex-row justify-end px-4"
+        onValueChange={(value) => setCurrentEnvironmentId(value)}
       >
         <TabsList>
           {getProjectEnvironments(project).map((environment) => (
             <TabsTrigger
               key={environment.id}
               value={environment.id}
-              onClick={() => setCurrentEnvironmentId(environment.id)}
             >
               {environment.name}
             </TabsTrigger>
@@ -83,7 +83,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
             key={service.id}
             environmentId={currentEnvironmentId}
             service={service}
-            deployments={getProjectServiceDeployments(project, service.id)}
+            deployments={getProjectServiceDeployments(project, service.id, currentEnvironmentId)}
             refreshProject={updateProject}
           />
         ))}
