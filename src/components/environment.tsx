@@ -38,9 +38,9 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
     updateProject();
 
     // Poll for updates every 10s
-    // const updateInterval = setInterval(() => {
-    // 	updateProject();
-    // }, 10000);
+    const updateInterval = setInterval(() => {
+    	updateProject();
+    }, 15000);
 
     // return () => clearInterval(updateInterval);
   }, [projectId, updateProject]);
