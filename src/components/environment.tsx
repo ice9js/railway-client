@@ -4,14 +4,8 @@ import type { Project } from "~/lib/railway-types";
 import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Ruler } from "~/components/ruler";
-import { Service } from "~/components/service";
 import { fetchProject } from "~/lib/railway-fetch";
-import {
-  getProjectEnvironments,
-  getProjectServices,
-  getProjectServiceDeployments,
-} from "~/lib/railway-utils";
+import { getProjectEnvironments } from "~/lib/railway-utils";
 import { Dashboard } from "./timeline/dashboard";
 
 interface EnvironmentViewProps {

@@ -2,14 +2,12 @@
 
 import type React from "react";
 
-import { useState } from "react";
 import { format } from "date-fns";
 
 import { Service } from "~/components/service";
 import { useTimelineState } from "~/hooks/use-timeline-state";
 import type { Project } from "~/lib/railway-types";
 import {
-  getProjectEnvironments,
   getProjectServices,
   getProjectServiceDeployments,
 } from "~/lib/railway-utils";
@@ -39,7 +37,7 @@ export const Dashboard = ({
   } = useTimelineState();
 
   return (
-    <div className="flex h-screen flex-col space-y-4 p-4">
+    <div className="flex flex-col space-y-4 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Deployments Timeline</h1>
         <TimelineControls

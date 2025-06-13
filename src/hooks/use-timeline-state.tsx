@@ -2,12 +2,11 @@
 
 import { useState, useCallback } from "react";
 import {
+  type Duration,
   add,
   sub,
   addDays,
-  addHours,
   startOfDay,
-  subDays,
   subMinutes,
 } from "date-fns";
 
@@ -87,7 +86,7 @@ export function useTimelineState() {
   // Move timeline right (forward in time)
   const moveTimelineRight = useCallback(() => {
     updateDateRange(endDate, zoomLevel);
-  }, [startDate, zoomLevel, updateDateRange]);
+  }, [endDate, zoomLevel, updateDateRange]);
 
   // Reset to today
   const resetToToday = useCallback(() => {

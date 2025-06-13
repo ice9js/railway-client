@@ -4,7 +4,6 @@ import { Copy, Pause, Play } from "lucide-react";
 
 import type { Deployment, Service as ServiceType } from "~/lib/railway-types";
 import { Button } from "~/components/ui/button";
-import { Timeline } from "~/components/timeline";
 import { removeDeployment, deployServiceInstance } from "~/lib/railway-fetch";
 import { getDeploymentRunningInstanceCount } from "~/lib/railway-utils";
 
