@@ -48,7 +48,9 @@ export const getProjectServiceDeployments = (
   project.deployments.edges
     .map(({ node }) => node)
     .filter(
-      (deployment) => deployment.serviceId === serviceId && deployment.environmentId === environmentId,
+      (deployment) =>
+        deployment.serviceId === serviceId &&
+        deployment.environmentId === environmentId,
     )
     .sort(
       (a, b) =>

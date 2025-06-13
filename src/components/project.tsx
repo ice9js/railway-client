@@ -32,7 +32,7 @@ const ProjectView = () => {
 
   return (
     <>
-      <div className="mb-12 flex w-full max-w-4xl flex-row items-center justify-between">
+      <div className="mb-12 flex w-full flex-row items-center justify-between">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">

@@ -78,43 +78,34 @@ export const Service = ({
   const isRunning = instances > 0;
 
   return (
-    <div className="grid grid-cols-3 gap-4 px-4">
-      <div className="flex flex-row">
-        {!isRunning && (
-          <Button
-            className="bg-green-500"
-            disabled={loading}
-            onClick={handleStart}
-          >
-            <Play className="h-4 w-4" />
-          </Button>
-        )}
-        {isRunning && (
-          <Button
-            className="bg-red-500"
-            disabled={loading}
-            onClick={handleStop}
-          >
-            <Pause className="h-4 w-4" />
-          </Button>
-        )}
-
-        <div className="ml-2 flex flex-1 flex-col">
-          <p className="mb-2 text-xl font-bold">{service.name}</p>
-          <div className="flex flex-row">
-            <span className={statusClasses}>
-              {lastDeployment?.status ?? "unknown"}
-            </span>
-            <span className="ml-2 inline-flex rounded-sm border-1 px-2 py-1 text-xs">
-              <Copy className="mr-2 h-3 w-3" />
-              {instances}
-            </span>
-          </div>
+    <div className="flex w-full flex-row">
+      <div className="ml-2 flex flex-1 flex-col">
+        <p className="mb-2 text-xl font-bold">{service.name}</p>
+        <div className="flex flex-row">
+          <span className={statusClasses}>
+            {lastDeployment?.status ?? "unknown"}
+          </span>
+          <span className="ml-2 inline-flex rounded-sm border-1 px-2 py-1 text-xs">
+            <Copy className="mr-2 h-3 w-3" />
+            {instances}
+          </span>
         </div>
       </div>
-      <div className="col-span-2 flex flex-row">
-        <Timeline deployments={deployments} />
-      </div>
+
+      {!isRunning && (
+        <Button
+          className="bg-green-500"
+          disabled={loading}
+          onClick={handleStart}
+        >
+          <Play className="h-4 w-4" />
+        </Button>
+      )}
+      {isRunning && (
+        <Button className="bg-red-500" disabled={loading} onClick={handleStop}>
+          <Pause className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 };

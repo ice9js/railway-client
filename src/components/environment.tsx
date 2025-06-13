@@ -12,6 +12,7 @@ import {
   getProjectServices,
   getProjectServiceDeployments,
 } from "~/lib/railway-utils";
+import { Dashboard } from "./timeline/dashboard";
 
 interface EnvironmentViewProps {
   projectId: string;
@@ -32,8 +33,12 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
 
         setProject(projectData);
 
-        if (projectData.environments.edges.map(({ node }) => node.id ).includes(currentEnvironmentId)) {
-            return;
+        if (
+          projectData.environments.edges
+            .map(({ node }) => node.id)
+            .includes(currentEnvironmentId)
+        ) {
+          return;
         }
 
         setCurrentEnvironmentId(
@@ -51,7 +56,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
 
     // Poll for updates every 10s
     const updateInterval = setInterval(() => {
-    	updateProject();
+      updateProject();
     }, 15000);
 
     return () => clearInterval(updateInterval);
@@ -62,7 +67,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
   }
 
   return (
-    <Card className="w-full max-w-4xl">
+    <Card className="w-full">
       <Tabs
         defaultValue={currentEnvironmentId}
         className="flex w-full flex-row justify-end px-4"
@@ -70,10 +75,7 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
       >
         <TabsList>
           {getProjectEnvironments(project).map((environment) => (
-            <TabsTrigger
-              key={environment.id}
-              value={environment.id}
-            >
+            <TabsTrigger key={environment.id} value={environment.id}>
               {environment.name}
             </TabsTrigger>
           ))}
@@ -82,24 +84,11 @@ const EnvironmentView = ({ projectId }: EnvironmentViewProps) => {
 
       <Separator />
 
-      <div className="grid grid-cols-3 gap-4 px-4">
-        <div></div>
-        <div className="col-span-2">
-          <Ruler />
-        </div>
-      </div>
-
-      <div className="grid gap-4">
-        {getProjectServices(project).map((service) => (
-          <Service
-            key={service.id}
-            environmentId={currentEnvironmentId}
-            service={service}
-            deployments={getProjectServiceDeployments(project, service.id, currentEnvironmentId)}
-            refreshProject={updateProject}
-          />
-        ))}
-      </div>
+      <Dashboard
+        project={project}
+        currentEnvironmentId={currentEnvironmentId}
+        refreshProject={updateProject}
+      />
     </Card>
   );
 };
